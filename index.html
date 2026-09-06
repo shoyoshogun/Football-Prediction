@@ -116,8 +116,69 @@ function render(){
     <div class="difference">${dist(p)===0?"EXACT":dist(p)+" away"}</div>
   </div>`).join("");
 }
-db.ref("game").on("value",s=>{if(s.exists())game={...game,...s.val()};render()});
-db.ref("predictions").on("value",s=>{predictions=[];s.forEach(c=>predictions.push({id:c.key,...c.val()}));render()});
+// Live game listener
+db.ref("game").on("value", snapshot => {
+  if (snapshot.exists()) {
+    game = { ...game, ...snapshot.val() };
+  }
+  render();
+}, error => {
+  console.error("Game listener error:", error);
+});
+
+// Keep predictions in a map so every add/change/remove updates the display immediately.
+const predictionMap = new Map();
+const predictionsRef = db.ref("predictions");
+
+function syncPredictionsFromMap() {
+  predictions = Array.from(predictionMap.values());
+  render();
+}
+
+// Initial full load
+predictionsRef.once("value")
+  .then(snapshot => {
+    predictionMap.clear();
+
+    snapshot.forEach(child => {
+      predictionMap.set(child.key, {
+        id: child.key,
+        ...child.val()
+      });
+    });
+
+    syncPredictionsFromMap();
+  })
+  .catch(error => {
+    console.error("Initial prediction load error:", error);
+  });
+
+// Real-time updates
+predictionsRef.on("child_added", snapshot => {
+  predictionMap.set(snapshot.key, {
+    id: snapshot.key,
+    ...snapshot.val()
+  });
+  syncPredictionsFromMap();
+});
+
+predictionsRef.on("child_changed", snapshot => {
+  predictionMap.set(snapshot.key, {
+    id: snapshot.key,
+    ...snapshot.val()
+  });
+  syncPredictionsFromMap();
+});
+
+predictionsRef.on("child_removed", snapshot => {
+  predictionMap.delete(snapshot.key);
+  syncPredictionsFromMap();
+});
+
+db.ref(".info/connected").on("value", snapshot => {
+  console.log("Firebase connected:", snapshot.val());
+});
+
 const predictionUrl=new URL("predict.html",window.location.href).href;
 $("qrText").textContent=predictionUrl;
 new QRCode($("qrcode"),{text:predictionUrl,width:210,height:210});
