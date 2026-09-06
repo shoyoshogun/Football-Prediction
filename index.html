@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Football Score Prediction</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="container">
+    <section class="card">
+      <h1>🏈 Score Prediction</h1>
+      <p class="subtitle">Enter your name and predict the final score.</p>
+
+      <div class="score-row">
+        <div>
+          <div id="teamAName" class="team-name">Team A</div>
+          <div id="teamAScore" class="live-score">0</div>
+        </div>
+        <div class="score-separator">-</div>
+        <div>
+          <div id="teamBName" class="team-name">Team B</div>
+          <div id="teamBScore" class="live-score">0</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <form id="predictionForm">
+        <label for="name">Your name</label>
+        <input id="name" maxlength="30" required placeholder="Carlos">
+
+        <div class="prediction-grid">
+          <div>
+            <label id="teamALabel" for="predA">Team A final score</label>
+            <input id="predA" type="number" min="0" max="100" required placeholder="24">
+          </div>
+          <div>
+            <label id="teamBLabel" for="predB">Team B final score</label>
+            <input id="predB" type="number" min="0" max="100" required placeholder="21">
+          </div>
+        </div>
+
+        <button type="submit">Submit Prediction</button>
+        <div id="status" class="status"></div>
+      </form>
+    </section>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <script>
+    const gameRef = db.ref("game");
+    const predictionsRef = db.ref("predictions");
+
+    let game = {
+      teamA: "Team A",
+      teamB: "Team B",
+      scoreA: 0,
+      scoreB: 0
+    };
+
+    gameRef.on("value", snapshot => {
+      if (snapshot.exists()) game = { ...game, ...snapshot.val() };
+
+      document.getElementById("teamAName").textContent = game.teamA;
+      document.getElementById("teamBName").textContent = game.teamB;
+      document.getElementById("teamAScore").textContent = game.scoreA ?? 0;
+      document.getElementById("teamBScore").textContent = game.scoreB ?? 0;
+      document.getElementById("teamALabel").textContent = `${game.teamA} final score`;
+      document.getElementById("teamBLabel").textContent = `${game.teamB} final score`;
+    });
+
+    document.getElementById("predictionForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value.trim();
+      const predA = Number(document.getElementById("predA").value);
+      const predB = Number(document.getElementById("predB").value);
+      const status = document.getElementById("status");
+
+      if (!name) return;
+
+      try {
+        await predictionsRef.push({
+          name,
+          predA,
+          predB,
+          createdAt: firebase.database.ServerValue.TIMESTAMP
+        });
+
+        status.textContent = `Prediction saved: ${game.teamA} ${predA} - ${predB} ${game.teamB}`;
+        e.target.reset();
+      } catch (err) {
+        console.error(err);
+        status.textContent = "Could not save prediction. Check Firebase setup.";
+      }
+    });
+  </script>
+</body>
+</html>

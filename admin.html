@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Football Prediction Admin</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="container">
+    <section class="card">
+      <h1>⚙️ Game Admin</h1>
+      <p class="subtitle">Change team names and update the current score. The display updates instantly.</p>
+
+      <form id="gameForm">
+        <div class="admin-grid">
+          <div>
+            <label for="teamA">Team A name</label>
+            <input id="teamA" required value="Team A">
+
+            <label for="scoreA">Team A current score</label>
+            <input id="scoreA" type="number" min="0" max="100" required value="0">
+          </div>
+
+          <div>
+            <label for="teamB">Team B name</label>
+            <input id="teamB" required value="Team B">
+
+            <label for="scoreB">Team B current score</label>
+            <input id="scoreB" type="number" min="0" max="100" required value="0">
+          </div>
+        </div>
+
+        <button type="submit">Update Live Score</button>
+        <div id="status" class="status"></div>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Game Controls</h2>
+      <button id="resetPredictions" class="danger">Delete All Predictions</button>
+      <p class="small">
+        Important: this starter admin page is not password protected yet. Do not publicly share its URL.
+      </p>
+    </section>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <script>
+    const gameRef = db.ref("game");
+    const predictionsRef = db.ref("predictions");
+
+    gameRef.on("value", snapshot => {
+      if (!snapshot.exists()) return;
+      const game = snapshot.val();
+
+      document.getElementById("teamA").value = game.teamA ?? "Team A";
+      document.getElementById("teamB").value = game.teamB ?? "Team B";
+      document.getElementById("scoreA").value = game.scoreA ?? 0;
+      document.getElementById("scoreB").value = game.scoreB ?? 0;
+    });
+
+    document.getElementById("gameForm").addEventListener("submit", async e => {
+      e.preventDefault();
+
+      const data = {
+        teamA: document.getElementById("teamA").value.trim(),
+        teamB: document.getElementById("teamB").value.trim(),
+        scoreA: Number(document.getElementById("scoreA").value),
+        scoreB: Number(document.getElementById("scoreB").value)
+      };
+
+      try {
+        await gameRef.set(data);
+        document.getElementById("status").textContent = "Live score updated.";
+      } catch (err) {
+        console.error(err);
+        document.getElementById("status").textContent = "Update failed. Check Firebase setup.";
+      }
+    });
+
+    document.getElementById("resetPredictions").addEventListener("click", async () => {
+      if (!confirm("Delete ALL score predictions?")) return;
+
+      try {
+        await predictionsRef.remove();
+        alert("All predictions deleted.");
+      } catch (err) {
+        console.error(err);
+        alert("Could not delete predictions.");
+      }
+    });
+  </script>
+</body>
+</html>
