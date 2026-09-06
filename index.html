@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Football Prediction Game</title><link rel="stylesheet" href="style.css">
+</head>
+<body class="display-body">
+<main class="wrap">
+  <header class="display-header">
+    <div class="tag">Gig 'Em Aggies</div>
+    <img class="display-logo" src="assets/tamu-logo.png" alt="Texas A&M">
+    <div class="tag right">Home of the 12th Man</div>
+  </header>
+
+  <section class="display-title">
+    <h1>Football Prediction Game</h1>
+    <p>Make your pick • See the results</p>
+  </section>
+
+  <section class="matchup">
+    <div class="team-card home">
+      <img id="logoA" src="assets/tamu-logo.png" alt="">
+      <div id="teamAName" class="team-name">Texas A&M</div>
+      <div class="team-sub">Aggies</div>
+    </div>
+    <div class="vs">VS</div>
+    <div class="team-card away">
+      <img id="logoB" src="assets/alabama-logo.png" alt="">
+      <div id="teamBName" class="team-name">Alabama</div>
+      <div class="team-sub">Opponent</div>
+    </div>
+  </section>
+
+  <section class="game-info">
+    <div class="info"><small>Game Date</small><strong id="gameDate">TBD</strong></div>
+    <div class="info"><small>Kickoff</small><strong id="kickoff">TBD</strong></div>
+    <div class="info"><small>Location</small><strong id="location">College Station, TX</strong></div>
+  </section>
+
+  <section class="livebar">
+    <div class="scorebox"><small id="liveLabelA">Texas A&M</small><div class="score" id="scoreA">0</div></div>
+    <div class="dash">–</div>
+    <div class="scorebox"><small id="liveLabelB">Alabama</small><div class="score" id="scoreB">0</div></div>
+  </section>
+
+  <div class="statusline"><span id="statusBadge" class="badge open">● Predictions Open</span></div>
+
+  <section class="display-grid">
+    <div class="board">
+      <div class="board-head"><h2>🏆 Leaderboard</h2><div id="totalPicks" class="total">Total Picks: 0</div></div>
+      <div class="columns"><div>#</div><div>Name</div><div>Prediction</div><div style="text-align:right">Difference</div></div>
+      <div id="winnerArea"></div>
+      <div id="leaderboard" class="empty"><div><strong>No predictions yet.</strong><span>Be the first to make a pick!</span></div></div>
+    </div>
+
+    <aside class="qr-card">
+      <h3>Scan to Make Your Prediction</h3>
+      <div id="qrcode"></div>
+      <p>One prediction per device.</p>
+      <p id="qrText"></p>
+    </aside>
+  </section>
+
+  <div class="gigem">Gig 'Em Aggies</div>
+  <div class="foot">Texas A&M Football • Home of the 12th Man</div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+let game={teamA:"Texas A&M",teamB:"Alabama",scoreA:0,scoreB:0,logoA:"assets/tamu-logo.png",logoB:"assets/alabama-logo.png",gameDate:"TBD",kickoff:"TBD",location:"College Station, TX",locked:false,ended:false};
+let predictions=[];
+function safe(v){return String(v).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;")}
+function dist(p){return Math.abs(Number(p.predA)-Number(game.scoreA||0))+Math.abs(Number(p.predB)-Number(game.scoreB||0))}
+function render(){
+  $("teamAName").textContent=game.teamA||"Texas A&M";
+  $("teamBName").textContent=game.teamB||"Opponent";
+  $("liveLabelA").textContent=game.teamA||"Texas A&M";
+  $("liveLabelB").textContent=game.teamB||"Opponent";
+  $("scoreA").textContent=game.scoreA??0;
+  $("scoreB").textContent=game.scoreB??0;
+  $("gameDate").textContent=game.gameDate||"TBD";
+  $("kickoff").textContent=game.kickoff||"TBD";
+  $("location").textContent=game.location||"College Station, TX";
+  $("logoA").src=game.logoA||"assets/tamu-logo.png";
+  $("logoB").src=game.logoB||"assets/alabama-logo.png";
+
+  if(game.ended){$("statusBadge").textContent="🏁 FINAL";$("statusBadge").className="badge closed"}
+  else if(game.locked){$("statusBadge").textContent="🔒 Predictions Locked";$("statusBadge").className="badge closed"}
+  else{$("statusBadge").textContent="● Predictions Open";$("statusBadge").className="badge open"}
+
+  const s=[...predictions].sort((a,b)=>dist(a)-dist(b)||(a.createdAt||0)-(b.createdAt||0));
+  $("totalPicks").textContent="Total Picks: "+s.length;
+  $("winnerArea").innerHTML="";
+  if(game.ended&&s.length){
+    const best=dist(s[0]);
+    const winners=s.filter(p=>dist(p)===best);
+    $("winnerArea").innerHTML=`<div class="winner"><h3>${best===0?"🎯 Exact Score Winner":"🏆 Closest Prediction Winner"}</h3><strong>${winners.map(w=>safe(w.name)).join(", ")}</strong><div>${best===0?"Predicted the final score exactly.":best+" total point"+(best===1?"":"s")+" away."}</div></div>`;
+  }
+
+  if(!s.length){
+    $("leaderboard").className="empty";
+    $("leaderboard").innerHTML='<div><strong>No predictions yet.</strong><span>Be the first to make a pick!</span></div>';
+    return;
+  }
+
+  $("leaderboard").className="";
+  $("leaderboard").innerHTML=s.map((p,i)=>`<div class="leader-row ${i===0?"first":i===1?"second":i===2?"third":""}">
+    <div class="rank">${i===0?"🥇":i===1?"🥈":i===2?"🥉":"#"+(i+1)}</div>
+    <div class="person">${safe(p.name)}</div>
+    <div class="pick">${p.predA} – ${p.predB}</div>
+    <div class="difference">${dist(p)===0?"EXACT":dist(p)+" away"}</div>
+  </div>`).join("");
+}
+db.ref("game").on("value",s=>{if(s.exists())game={...game,...s.val()};render()});
+db.ref("predictions").on("value",s=>{predictions=[];s.forEach(c=>predictions.push({id:c.key,...c.val()}));render()});
+const predictionUrl=new URL("predict.html",window.location.href).href;
+$("qrText").textContent=predictionUrl;
+new QRCode($("qrcode"),{text:predictionUrl,width:210,height:210});
+</script>
+</body>
+</html>
