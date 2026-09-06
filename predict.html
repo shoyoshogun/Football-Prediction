@@ -1,145 +1,692 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Make Your Prediction</title><link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Make Your Prediction</title>
+
+<link rel="stylesheet" href="style.css">
 </head>
+
 <body class="predict-body">
+
 <main class="predict-shell">
+
   <section class="predict-card">
+
     <div class="predict-top">
-      <img src="assets/tamu-logo.png" alt="Texas A&M">
-      <h1>Football Prediction Game</h1>
-      <p>Make your pick</p>
+
+      <img
+        src="assets/tamu-logo.png"
+        alt="Texas A&M"
+      >
+
+      <h1>
+        Football Prediction Game
+      </h1>
+
+      <p>
+        Make your pick
+      </p>
+
     </div>
+
 
     <div class="predict-content">
-      <div style="text-align:center"><span id="lockBadge" class="badge open">● Predictions Open</span></div>
 
-      <section class="predict-matchup">
-        <div class="predict-team home">
-          <img id="logoA" src="assets/tamu-logo.png" alt="">
-          <div id="teamAName" class="team-name">Texas A&M</div>
-        </div>
-        <div class="predict-vs">VS</div>
-        <div class="predict-team away">
-          <img id="logoB" src="assets/alabama-logo.png" alt="">
-          <div id="teamBName" class="team-name">Alabama</div>
-        </div>
-      </section>
+      <div style="text-align:center">
 
-      <div id="alreadySubmitted" class="hidden">
-        <div class="submitted">
-          <strong>✅ Prediction Submitted</strong>
-          <div id="savedPrediction" style="margin-top:7px"></div>
-        </div>
-        <p class="helper">This device already used its one prediction.</p>
+        <span
+          id="lockBadge"
+          class="badge open"
+        >
+          ● Predictions Open
+        </span>
+
       </div>
 
-      <form id="predictionForm">
-        <label for="name">Your Name</label>
-        <input id="name" maxlength="30" required placeholder="Enter your name">
 
-        <div class="score-grid">
-          <div>
-            <label id="teamALabel" for="predA">Texas A&M final score</label>
-            <input id="predA" type="number" min="0" max="100" required placeholder="24">
+      <section class="predict-matchup">
+
+        <div class="predict-team home">
+
+          <img
+            id="logoA"
+            src="assets/tamu-logo.png"
+            alt=""
+          >
+
+          <div
+            id="teamAName"
+            class="team-name"
+          >
+            Texas A&M
           </div>
-          <div>
-            <label id="teamBLabel" for="predB">Alabama final score</label>
-            <input id="predB" type="number" min="0" max="100" required placeholder="21">
-          </div>
+
         </div>
 
-        <button id="submitBtn" class="primary" type="submit">Submit Prediction</button>
-        <div id="status" class="notice"></div>
-        <p class="helper">One prediction per device. Good luck and Gig 'Em!</p>
+
+        <div class="predict-vs">
+          VS
+        </div>
+
+
+        <div class="predict-team away">
+
+          <img
+            id="logoB"
+            src="assets/alabama-logo.png"
+            alt=""
+          >
+
+          <div
+            id="teamBName"
+            class="team-name"
+          >
+            Alabama
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <div
+        id="alreadySubmitted"
+        class="hidden"
+      >
+
+        <div class="submitted">
+
+          <strong>
+            ✅ Prediction Submitted
+          </strong>
+
+          <div
+            id="savedPrediction"
+            style="margin-top:7px"
+          ></div>
+
+        </div>
+
+        <p class="helper">
+          This device already used its one prediction.
+        </p>
+
+      </div>
+
+
+      <form id="predictionForm">
+
+        <label for="name">
+          Your Name
+        </label>
+
+        <input
+          id="name"
+          maxlength="30"
+          required
+          placeholder="Enter your name"
+        >
+
+
+        <div class="score-grid">
+
+          <div>
+
+            <label
+              id="teamALabel"
+              for="predA"
+            >
+              Texas A&M final score
+            </label>
+
+            <input
+              id="predA"
+              type="number"
+              min="0"
+              max="100"
+              required
+              placeholder="24"
+            >
+
+          </div>
+
+
+          <div>
+
+            <label
+              id="teamBLabel"
+              for="predB"
+            >
+              Alabama final score
+            </label>
+
+            <input
+              id="predB"
+              type="number"
+              min="0"
+              max="100"
+              required
+              placeholder="21"
+            >
+
+          </div>
+
+        </div>
+
+
+        <button
+          id="submitBtn"
+          class="primary"
+          type="submit"
+        >
+          Submit Prediction
+        </button>
+
+
+        <div
+          id="status"
+          class="notice"
+        ></div>
+
+
+        <p class="helper">
+          One prediction per device. Good luck and Gig 'Em!
+        </p>
+
       </form>
+
     </div>
 
-    <img class="twelve" src="assets/home-12th-man.png" alt="Home of the 12th Man">
+
+    <img
+      class="twelve"
+      src="assets/home-12th-man.png"
+      alt="Home of the 12th Man"
+    >
+
   </section>
+
 </main>
 
+
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+
 <script src="firebase-config.js"></script>
+
+
 <script>
-const $=id=>document.getElementById(id);
-let game={teamA:"Texas A&M",teamB:"Alabama",logoA:"assets/tamu-logo.png",logoB:"assets/alabama-logo.png",locked:false,ended:false};
-let currentUser=null;
 
-function render(){
-  $("teamAName").textContent=game.teamA||"Texas A&M";
-  $("teamBName").textContent=game.teamB||"Opponent";
-  $("teamALabel").textContent=(game.teamA||"Texas A&M")+" final score";
-  $("teamBLabel").textContent=(game.teamB||"Opponent")+" final score";
-  $("logoA").src=game.logoA||"assets/tamu-logo.png";
-  $("logoB").src=game.logoB||"assets/alabama-logo.png";
+const $ =
+  id =>
+    document.getElementById(id);
 
-  if(game.ended){
-    $("lockBadge").textContent="🏁 Game Ended";
-    $("lockBadge").className="badge closed";
-    $("submitBtn").disabled=true;
-  }else if(game.locked){
-    $("lockBadge").textContent="🔒 Predictions Locked";
-    $("lockBadge").className="badge closed";
-    $("submitBtn").disabled=true;
-  }else{
-    $("lockBadge").textContent="● Predictions Open";
-    $("lockBadge").className="badge open";
-    $("submitBtn").disabled=false;
+
+let game = {
+
+  teamA:
+    "Texas A&M",
+
+  teamB:
+    "Alabama",
+
+  logoA:
+    "assets/tamu-logo.png",
+
+  logoB:
+    "assets/alabama-logo.png",
+
+  locked:
+    false,
+
+  ended:
+    false
+
+};
+
+
+/* =========================
+   DEVICE ID
+========================= */
+
+const DEVICE_KEY =
+  "footballPredictionDeviceId_v1";
+
+
+function getDeviceId() {
+
+  let id =
+    localStorage.getItem(
+      DEVICE_KEY
+    );
+
+
+  if (!id) {
+
+    if (
+      window.crypto &&
+      crypto.randomUUID
+    ) {
+
+      id =
+        crypto.randomUUID();
+
+    }
+
+    else {
+
+      id =
+        "device-" +
+        Date.now() +
+        "-" +
+        Math.random()
+          .toString(36)
+          .slice(2);
+
+    }
+
+
+    localStorage.setItem(
+      DEVICE_KEY,
+      id
+    );
+
   }
+
+
+  return id;
+
 }
 
-async function check(){
-  if(!currentUser)return;
-  const s=await db.ref("predictions/"+currentUser.uid).once("value");
-  if(s.exists()){
-    const p=s.val();
-    $("predictionForm").classList.add("hidden");
-    $("alreadySubmitted").classList.remove("hidden");
-    $("savedPrediction").textContent=`${p.name}: ${game.teamA} ${p.predA} – ${p.predB} ${game.teamB}`;
+
+const deviceId =
+  getDeviceId();
+
+
+/* =========================
+   RENDER GAME
+========================= */
+
+function render() {
+
+  $("teamAName").textContent =
+    game.teamA ||
+    "Texas A&M";
+
+
+  $("teamBName").textContent =
+    game.teamB ||
+    "Opponent";
+
+
+  $("teamALabel").textContent =
+    (
+      game.teamA ||
+      "Texas A&M"
+    )
+    +
+    " final score";
+
+
+  $("teamBLabel").textContent =
+    (
+      game.teamB ||
+      "Opponent"
+    )
+    +
+    " final score";
+
+
+  $("logoA").src =
+    game.logoA ||
+    "assets/tamu-logo.png";
+
+
+  $("logoB").src =
+    game.logoB ||
+    "assets/alabama-logo.png";
+
+
+  if (
+    game.ended
+  ) {
+
+    $("lockBadge").textContent =
+      "🏁 Game Ended";
+
+
+    $("lockBadge").className =
+      "badge closed";
+
+
+    $("submitBtn").disabled =
+      true;
+
   }
+
+  else if (
+    game.locked
+  ) {
+
+    $("lockBadge").textContent =
+      "🔒 Predictions Locked";
+
+
+    $("lockBadge").className =
+      "badge closed";
+
+
+    $("submitBtn").disabled =
+      true;
+
+  }
+
+  else {
+
+    $("lockBadge").textContent =
+      "● Predictions Open";
+
+
+    $("lockBadge").className =
+      "badge open";
+
+
+    $("submitBtn").disabled =
+      false;
+
+  }
+
 }
 
-auth.onAuthStateChanged(async u=>{if(u){currentUser=u;await check()}});
-auth.signInAnonymously().catch(()=>{
-  $("status").textContent="Could not start prediction session.";
-  $("status").className="notice error";
-});
-db.ref("game").on("value",s=>{
-  if(s.exists())game={...game,...s.val()};
-  render();
-  if(currentUser)check();
-});
-$("predictionForm").addEventListener("submit",async e=>{
-  e.preventDefault();
-  if(!currentUser||game.locked||game.ended)return;
-  const name=$("name").value.trim();
-  const predA=Number($("predA").value);
-  const predB=Number($("predB").value);
 
-  try{
-    const r=db.ref("predictions/"+currentUser.uid);
-    const s=await r.once("value");
-    if(s.exists())return check();
+/* =========================
+   CHECK IF THIS DEVICE
+   ALREADY SUBMITTED
+========================= */
 
-    await r.set({
-      uid:currentUser.uid,
-      name,
-      predA,
-      predB,
-      createdAt:firebase.database.ServerValue.TIMESTAMP
-    });
-    await check();
-  }catch(err){
-    console.error(err);
-    $("status").textContent="Could not save prediction.";
-    $("status").className="notice error";
+async function
+checkExistingPrediction() {
+
+  const snapshot =
+
+    await db
+      .ref(
+        "predictions/" +
+        deviceId
+      )
+      .once(
+        "value"
+      );
+
+
+  if (
+    snapshot.exists()
+  ) {
+
+    const p =
+      snapshot.val();
+
+
+    $("predictionForm")
+      .classList
+      .add(
+        "hidden"
+      );
+
+
+    $("alreadySubmitted")
+      .classList
+      .remove(
+        "hidden"
+      );
+
+
+    $("savedPrediction")
+      .textContent =
+
+        `${p.name}: ${game.teamA} ${p.predA} – ${p.predB} ${game.teamB}`;
+
+
+    return true;
+
   }
-});
+
+
+  return false;
+
+}
+
+
+/* =========================
+   GAME LISTENER
+========================= */
+
+db
+  .ref(
+    "game"
+  )
+  .on(
+    "value",
+
+    async snapshot => {
+
+      if (
+        snapshot.exists()
+      ) {
+
+        game = {
+
+          ...game,
+
+          ...snapshot.val()
+
+        };
+
+      }
+
+
+      render();
+
+
+      await
+        checkExistingPrediction();
+
+    }
+
+  );
+
+
+/* =========================
+   SUBMIT PREDICTION
+========================= */
+
+$("predictionForm")
+  .addEventListener(
+    "submit",
+
+    async event => {
+
+      event.preventDefault();
+
+
+      if (
+        game.locked ||
+        game.ended
+      ) {
+
+        return;
+
+      }
+
+
+      const alreadyExists =
+
+        await
+          checkExistingPrediction();
+
+
+      if (
+        alreadyExists
+      ) {
+
+        return;
+
+      }
+
+
+      const name =
+
+        $("name")
+          .value
+          .trim();
+
+
+      const predA =
+
+        Number(
+          $("predA")
+            .value
+        );
+
+
+      const predB =
+
+        Number(
+          $("predB")
+            .value
+        );
+
+
+      if (
+        !name
+      ) {
+
+        return;
+
+      }
+
+
+      $("submitBtn").disabled =
+        true;
+
+
+      $("status").textContent =
+        "Saving...";
+
+
+      $("status").className =
+        "notice";
+
+
+      const ref =
+
+        db.ref(
+          "predictions/" +
+          deviceId
+        );
+
+
+      const prediction = {
+
+        deviceId:
+          deviceId,
+
+        name:
+          name,
+
+        predA:
+          predA,
+
+        predB:
+          predB,
+
+        createdAt:
+          firebase
+            .database
+            .ServerValue
+            .TIMESTAMP
+
+      };
+
+
+      try {
+
+        const result =
+
+          await ref.transaction(
+
+            current => {
+
+              if (
+                current === null
+              ) {
+
+                return prediction;
+
+              }
+
+
+              return;
+
+            }
+
+          );
+
+
+        if (
+          !result.committed
+        ) {
+
+          await
+            checkExistingPrediction();
+
+
+          return;
+
+        }
+
+
+        $("status").textContent =
+          "Prediction saved!";
+
+
+        await
+          checkExistingPrediction();
+
+      }
+
+
+      catch (
+        error
+      ) {
+
+        console.error(
+          error
+        );
+
+
+        $("status").textContent =
+          "Could not save prediction.";
+
+
+        $("status").className =
+          "notice error";
+
+
+        $("submitBtn").disabled =
+          false;
+
+      }
+
+    }
+
+  );
+
 </script>
+
 </body>
 </html>
